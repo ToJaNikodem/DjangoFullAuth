@@ -8,18 +8,18 @@ Content-Type: application/json
 POST http://127.0.0.1:8000/login 
 Content-Type: application/json
 
-{ "username_or_email": "adam", "password": "Pass1234!" }
+{ "username": "admin@admin.pl", "password": "admin" }
 
 ###
 
-GET http://127.0.0.1:8000/test_token 
+POST http://127.0.0.1:8000/token_test 
 Content-Type: application/json
-Authorization: Token 3d5f2a92edf2cd92fc2aab38628a85996bd12297
+
+{ "token": ""}
 
 ###
 
 POST http://127.0.0.1:8000/logout
 Content-Type: application/json
-Authorization: Token 3d5f2a92edf2cd92fc2aab38628a85996bd12297
 
-{ "username": "adam" }
+{ "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTcxNjI1MzAzNywiaWF0IjoxNzA4NDc3MDM3LCJqdGkiOiI3NGQ1YzhiYThjM2Y0MjkyOTdmOWM4MTJkZDhhZWVlYSIsInVzZXJfaWQiOjF9.XFPgPmHlKtQxBg-6RA4IZUm4TgyfCa6PvxrEi_YNWVU"}
