@@ -20,6 +20,18 @@ AUTH_USER_MODEL="api.CustomUser"
 
 # Application definition
 
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8080',
+]
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:8080',
+]
+
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:8080',
+]
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',

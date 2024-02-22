@@ -8,7 +8,7 @@ Content-Type: application/json
 POST http://127.0.0.1:8000/login 
 Content-Type: application/json
 
-{ "username": "admin@admin.pl", "password": "admin" }
+{ "username": "admin", "password": "admin" }
 
 ###
 
