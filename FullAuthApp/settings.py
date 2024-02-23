@@ -20,16 +20,18 @@ AUTH_USER_MODEL="api.CustomUser"
 
 # Application definition
 
+FRONTEND = 'http://localhost:8080'
+
 CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:8080',
+    FRONTEND
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:8080',
+    FRONTEND
 ]
 
 CORS_ORIGIN_WHITELIST = [
-    'http://localhost:8080',
+    FRONTEND
 ]
 
 INSTALLED_APPS = [
@@ -70,10 +72,9 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=90),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
-    'UPDATE_LAST_LOGIN': False,
+    'UPDATE_LAST_LOGIN': True,
 
     'ALGORITHM': 'HS256',
-    'VERIFYING_KEY': None,
     'AUDIENCE': None,
     'ISSUER': None,
     'JWK_URL': None,
