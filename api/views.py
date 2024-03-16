@@ -1,19 +1,15 @@
 from .models import CustomUser
-from secrets import token_urlsafe
 from .serializers import UserSerializer
 from rest_framework import status
-from django.core.mail import send_mail
-from django.core.signing import dumps, loads
+from django.core.mail import EmailMessage
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django.utils.encoding import force_bytes
 from django.core.exceptions import ObjectDoesNotExist
+from django.template.loader import render_to_string
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-
-
-def generate_verification_url(user):
-    random_string = token_urlsafe(32)
-    signed_string = dumps({"user_id": user.pk, "random_string": random_string})
-    return f"http://localhost:8000/verify?token={signed_string}"
+from django.contrib.auth.tokens import default_token_generator
 
 
 @api_view(['GET'])
@@ -41,6 +37,24 @@ def user_delete(request):
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+@api_view(['POST'])
+def email_verification(request):
+    data = request.data
+    token = data.get('token')
+    user_id = data.get('user_id')
+    try:
+        uid = urlsafe_base64_decode(user_id)
+        user = CustomUser.objects.get(pk=uid)
+    except Exception as e:
+        return Response({'message': 'error'}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+    if default_token_generator.check_token(user, token):
+        user.is_email_verified = True
+        user.save()
+        return Response({'detail': 'Email verified successfully'}, status=status.HTTP_200_OK)
+    else:
+        return Response({'detail': 'Invalid verification link'}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def signup(request):
@@ -55,16 +69,18 @@ def signup(request):
             password=data['password']
         )
         user = CustomUser.objects.get(username=data['username'])
-        verification_url = generate_verification_url(user)
 
         try:
-            send_mail(
-                "Verify your address email",
-                verification_url,
-                "feedbackmail@host795037.xce.pl",
-                [user.email],
-                fail_silently=False,
-            )
+            subject = 'Activate Your Account'
+            message = render_to_string('verification_email.html', {
+                'user': user,
+                'domain': 'http://localhost:8080',
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': default_token_generator.make_token(user),
+            })
+            email = EmailMessage(subject, message, to=[user.email])
+            email.content_subtype = "html"
+            email.send()
         except Exception as e:
             print (e)
             return Response({'message': 'Email not send'}, status=status.HTTP_200_OK)

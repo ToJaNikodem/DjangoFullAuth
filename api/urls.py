@@ -13,4 +13,5 @@ urlpatterns = [
     re_path('token_test', views.token_test, name='token_test'),
     re_path('token_refresh', TokenRefreshView.as_view(), name='token_refresh'),
     re_path('user_delete', views.user_delete, name="user_delete"),
+    re_path('email_verification', views.email_verification, name='email_verification')
 ]
