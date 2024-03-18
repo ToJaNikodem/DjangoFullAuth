@@ -77,7 +77,6 @@ def signup(request):
                 password=data.get('password', '')
             )
             user = CustomUser.objects.get(username=data.get('username', ''))
-            user.full_clean()
             user.save()
             
             try:
