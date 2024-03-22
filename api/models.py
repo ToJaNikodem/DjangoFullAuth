@@ -34,6 +34,15 @@ class CustomUser(AbstractUser):
             username_validator
         ],
     )
+    
+    nickname = models.CharField(
+        default='',
+        max_length=40,
+        error_messages={'blank': 'blank', 'invalid': 'invalid'},
+        validators=[
+            username_validator
+        ],
+    )
 
     def __str__(self):
         return self.username
