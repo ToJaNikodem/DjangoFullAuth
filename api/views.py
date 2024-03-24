@@ -2,6 +2,7 @@ from .models import CustomUser
 from .serializers import UserSerializer
 from rest_framework import status
 from django.core.mail import EmailMessage
+from django.contrib.auth import authenticate
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.core.exceptions import ObjectDoesNotExist
@@ -72,9 +73,15 @@ def username_change(request):
 def password_change(request):
     data = request.data
     try:
-        new_password = data.get('new_password', '')
         username = data.get('username', '')
+        password = data.get('password', '')
+        new_password = data.get('new_password', '')
+        
         user = CustomUser.objects.get(username=username)
+        
+        if not authenticate(username=user.username, password=password):
+            return Response({'message': 'Current password is incorrect!'}, status=status.HTTP_400_BAD_REQUEST)
+        
         user.set_password(new_password)
         user.save()
         return Response({'message': 'Password changed successfully!'}, status=status.HTTP_200_OK)
