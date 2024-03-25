@@ -1,8 +1,8 @@
 from django.db import models
-from django.core.validators import RegexValidator, MinLengthValidator
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.forms import ValidationError
 import re
+
 
 def username_validator(value):
     if not re.match(r'^[a-z0-9](?:[a-z0-9]+[.\-_]?)+[a-z0-9]$', value):
@@ -10,6 +10,7 @@ def username_validator(value):
 
     if len(value) < 4:
         raise ValidationError('too_short')
+
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, username, email, password=None, **extra_fields):
@@ -22,19 +23,21 @@ class CustomUserManager(BaseUserManager):
 
 
 class CustomUser(AbstractUser):
-    email = models.EmailField(unique=True, error_messages={'blank': 'blank', 'unique': 'not_unique', 'invalid': 'invalid'})
+    email = models.EmailField(unique=True, error_messages={
+                              'blank': 'blank', 'unique': 'not_unique', 'invalid': 'invalid'})
     is_email_verified = models.BooleanField(default=False)
     objects = CustomUserManager()
 
     username = models.CharField(
         max_length=40,
         unique=True,
-        error_messages={'blank': 'blank', 'unique': 'not_unique', 'invalid': 'invalid'},
+        error_messages={'blank': 'blank',
+                        'unique': 'not_unique', 'invalid': 'invalid'},
         validators=[
             username_validator
         ],
     )
-    
+
     nickname = models.CharField(
         default='',
         max_length=40,
