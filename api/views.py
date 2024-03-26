@@ -1,13 +1,12 @@
+from .utils import send_activation_email, send_password_reset_email
 from .models import CustomUser
 from .serializers import UserSerializer, PasswordChangeSerializer, UsernameChangeSerializer, EmailVerificationSerializer, PasswordResetSerializer
-from rest_framework import status
-from django.utils.http import urlsafe_base64_decode
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.http import urlsafe_base64_decode
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from .utils import send_activation_email, send_password_reset_email
-
 
 @api_view(['POST'])
 def signup(request):
@@ -22,7 +21,7 @@ def signup(request):
                 password=data.get('password', ''),
             )
             user = CustomUser.objects.get(username=data.get('username', ''))
-            user.nickname = data.get('username', '')
+            user.nickname = ''
             user.save()
 
             if send_activation_email(user):
@@ -59,8 +58,8 @@ def user_delete(request):
 def email_verification(request):
     try:
         data = request.data
-        user_id = data.get('user_id', '')
-        decoded_user_id = urlsafe_base64_decode(user_id)
+        encoded_user_id = data.get('encoded_user_id', '')
+        decoded_user_id = urlsafe_base64_decode(encoded_user_id)
         verication_token = data.get('verification_token', '')
         user = CustomUser.objects.get(pk=decoded_user_id)
 
@@ -150,7 +149,7 @@ def password_change(request):
 
 
 @api_view(['POST'])
-def send_password_reset_email(request):
+def send_password_reset(request):
     try:
         data = request.data
         email = data.get('email', '')

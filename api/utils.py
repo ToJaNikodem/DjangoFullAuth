@@ -1,9 +1,9 @@
+from .tokens import account_activation_token
+from django.core.mail import EmailMessage
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
-from django.template.loader import render_to_string
-from .tokens import account_activation_token
 from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
 
 
 def send_activation_email(user):

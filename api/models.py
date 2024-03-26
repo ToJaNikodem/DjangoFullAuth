@@ -1,7 +1,8 @@
-from django.db import models
-from django.contrib.auth.models import AbstractUser, BaseUserManager
-from django.forms import ValidationError
 import re
+from .messages import DEFAULT_ERROR_MESSAGES
+from django.db import models
+from django.forms import ValidationError
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 
 
 def username_validator(value):
@@ -10,6 +11,9 @@ def username_validator(value):
 
     if len(value) < 4:
         raise ValidationError('too_short')
+    
+    if len(value) > 40:
+        raise ValidationError('too_long')
 
 
 class CustomUserManager(BaseUserManager):
@@ -23,16 +27,15 @@ class CustomUserManager(BaseUserManager):
 
 
 class CustomUser(AbstractUser):
-    email = models.EmailField(unique=True, error_messages={
-                              'blank': 'blank', 'unique': 'not_unique', 'invalid': 'invalid'})
+    email = models.EmailField(
+        unique=True, error_messages=DEFAULT_ERROR_MESSAGES)
     is_email_verified = models.BooleanField(default=False)
     objects = CustomUserManager()
 
     username = models.CharField(
         max_length=40,
         unique=True,
-        error_messages={'blank': 'blank',
-                        'unique': 'not_unique', 'invalid': 'invalid'},
+        error_messages=DEFAULT_ERROR_MESSAGES,
         validators=[
             username_validator
         ],
@@ -41,7 +44,7 @@ class CustomUser(AbstractUser):
     nickname = models.CharField(
         default='',
         max_length=40,
-        error_messages={'blank': 'blank', 'invalid': 'invalid'},
+        error_messages=DEFAULT_ERROR_MESSAGES,
         validators=[
             username_validator
         ],
