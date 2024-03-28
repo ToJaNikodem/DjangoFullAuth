@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 
+
 @api_view(['POST'])
 def signup(request):
     try:
@@ -87,6 +88,8 @@ def resend_verification_email(request):
         data = request.data
         username = data.get('username', '')
         user = CustomUser.objects.get(username=username)
+        if not user.is_email_verified == 1:
+            return Response({'message': 'Email already verified!'}, status=status.HTTP_400_BAD_REQUEST)
         if send_activation_email(user):
             return Response({'message': 'Verification email send successfully!'}, status=status.HTTP_200_OK)
         else:
@@ -105,7 +108,7 @@ def token_test(request):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def username_change(request):
+def nickname_change(request):
     try:
         data = request.data
         username = data.get('username', '')
