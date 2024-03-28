@@ -1,19 +1,7 @@
-import re
 from .messages import DEFAULT_ERROR_MESSAGES
-from django.db import models
-from django.forms import ValidationError
+from .validators import username_validator
+from django.db import models 
 from django.contrib.auth.models import AbstractUser, BaseUserManager
-
-
-def username_validator(value):
-    if not re.match(r'^[a-z0-9](?:[a-z0-9]+[.\-_]?)+[a-z0-9]$', value):
-        raise ValidationError('invalid')
-
-    if len(value) < 4:
-        raise ValidationError('too_short')
-    
-    if len(value) > 40:
-        raise ValidationError('too_long')
 
 
 class CustomUserManager(BaseUserManager):

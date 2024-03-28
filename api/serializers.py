@@ -2,26 +2,10 @@ import re
 from .models import CustomUser
 from .tokens import account_activation_token
 from .messages import DEFAULT_ERROR_MESSAGES
+from .validators import validate_password
 from rest_framework import serializers
-from django.core.validators import validate_email
 from django.contrib.auth.tokens import default_token_generator
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-
-def validate_password(value):
-    if len(value) < 10:
-        raise serializers.ValidationError('too_short')
-
-    if len(value) > 64:
-        raise serializers.ValidationError('too_long')
-
-    if not any(char.isdigit() for char in value):
-        raise serializers.ValidationError('invalid')
-
-    special_characters = '!#$%&()*+,-./:;<=>?@[\]^_`{|}~'
-    if not any(char in special_characters for char in value):
-        raise serializers.ValidationError('invalid')
-
-    return value
 
 class PasswordResetSerializer(serializers.Serializer):
     new_password = serializers.CharField(required=True, error_messages=DEFAULT_ERROR_MESSAGES)
