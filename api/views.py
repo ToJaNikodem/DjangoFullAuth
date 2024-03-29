@@ -1,6 +1,6 @@
 from .utils import send_activation_email, send_password_reset_email
 from .models import CustomUser
-from .serializers import UserSerializer, PasswordChangeSerializer, UsernameChangeSerializer, EmailVerificationSerializer, PasswordResetSerializer
+from .serializers import UserSerializer, PasswordChangeSerializer, NicknameChangeSerializer, EmailVerificationSerializer, PasswordResetSerializer
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.http import urlsafe_base64_decode
 from rest_framework import status
@@ -11,6 +11,12 @@ from rest_framework.permissions import IsAuthenticated
 
 @api_view(['POST'])
 def signup(request):
+    """
+    Data:
+        username,
+        email,
+        password,
+    """
     try:
         data = request.data
         serializer = UserSerializer(data=data)
@@ -38,6 +44,13 @@ def signup(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def user_delete(request):
+    """
+    Data:
+        username,
+        password,
+    Headers:
+        Bearer + 'accces_token'
+    """
     try:
         data = request.data
         username = data.get('username', '')
@@ -57,6 +70,11 @@ def user_delete(request):
 
 @api_view(['POST'])
 def email_verification(request):
+    """
+    Data:
+        encoded_user_id,
+        verification_token,
+    """
     try:
         data = request.data
         encoded_user_id = data.get('encoded_user_id', '')
@@ -84,6 +102,12 @@ def email_verification(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def resend_verification_email(request):
+    """
+    Data:
+        username,
+    Headers:
+        Bearer + 'accces_token'
+    """
     try:
         data = request.data
         username = data.get('username', '')
@@ -103,18 +127,29 @@ def resend_verification_email(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def token_test(request):
+    """
+    Headers:
+        Bearer + 'accces_token'
+    """
     return Response({'message': 'Token is valid!'}, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def nickname_change(request):
+    """
+    Data:
+        username,
+        new_nickname,
+    Headers:
+        Bearer + 'accces_token'
+    """
     try:
         data = request.data
         username = data.get('username', '')
         user = CustomUser.objects.get(username=username)
 
-        serializer = UsernameChangeSerializer(
+        serializer = NicknameChangeSerializer(
             data=data, context={'user': user})
         if serializer.is_valid():
             user.nickname = serializer.validated_data['new_nickname']
@@ -131,6 +166,14 @@ def nickname_change(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def password_change(request):
+    """
+    Data:
+        username,
+        old_password,
+        new_password,
+    Headers:
+        Bearer + 'accces_token'
+    """
     try:
         data = request.data
         username = data.get('username', '')
@@ -153,6 +196,10 @@ def password_change(request):
 
 @api_view(['POST'])
 def send_password_reset(request):
+    """
+    Data:
+        email,
+    """
     try:
         data = request.data
         email = data.get('email', '')
@@ -171,10 +218,16 @@ def send_password_reset(request):
 
 @api_view(['POST'])
 def password_reset(request):
+    """
+    Data:
+        encoded_user_id,
+        reset_token,
+        new_password
+    """
     try:
         data = request.data
-        user_id = data.get('user_id', '')
-        decoded_user_id = urlsafe_base64_decode(user_id)
+        encoded_user_id = data.get('encoded_user_id', '')
+        decoded_user_id = urlsafe_base64_decode(encoded_user_id)
         reset_token = data.get('reset_token', '')
         user = CustomUser.objects.get(pk=decoded_user_id)
 
